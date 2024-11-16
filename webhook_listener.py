@@ -16,7 +16,7 @@ def verify_secret(request):
         abort(403)
     print(signature)
     _, signature = signature.split("=")
-    mac = hmac.new(SECRET_KEY.encode(), msg=request.data, digestmod=hashlib.sha256)
+    mac = hmac.new(SECRET_KEY.encode(), msg=request.data, digestmod=hashlib.sha1)
 
     if not hmac.compare_digest(mac.hexdigest(), signature):
         abort(403)
