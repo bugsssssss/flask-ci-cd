@@ -14,11 +14,26 @@ def verify_secret(request):
     signature = request.headers.get("X-Hub-Signature-256")
     if signature is None:
         abort(403)
-    print(signature)
-    _, signature = signature.split("=")
-    mac = hmac.new(SECRET_KEY.encode(), msg=request.data, digestmod=hashlib.sha1)
 
-    if not hmac.compare_digest(mac.hexdigest(), signature):
+    # Validate format: sha256=<signature>
+    try:
+        algo, signature = signature.split("=")
+        if algo != "sha256":
+            abort(403)
+    except ValueError:
+        abort(403)
+
+    # Compute HMAC with raw payload
+    payload = request.get_data(as_text=False)
+    mac = hmac.new(SECRET_KEY.encode(), msg=payload, digestmod=hashlib.sha256)
+
+    # Debugging
+    computed_signature = mac.hexdigest()
+    print(f"Computed: {computed_signature}")
+    print(f"Received: {signature}")
+
+    # Compare signatures
+    if not hmac.compare_digest(computed_signature, signature):
         abort(403)
 
 
