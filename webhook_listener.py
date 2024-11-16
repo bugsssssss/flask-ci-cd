@@ -5,9 +5,9 @@ import subprocess
 app = Flask(__name__)
 
 
-@app.route("/webhook", methods=["GET"])
+@app.route("/webhook", methods=["POST"])
 def webhook_event():
-    if request.method == "GET":
+    if request.method == "POST":
         subprocess.run(["git", "pull"], cwd="/home/allplay/internetbor-ru-backend")
 
         subprocess.run(
