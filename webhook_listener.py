@@ -11,8 +11,8 @@ SECRET_KEY = "fvGL5puCNg7Lud4X"
 
 
 def verify_secret(request):
-    signature = request.headers.get("X-Hub-Signature-256")
-    if not signature:
+    signature = request.headers.get("X-Hub-Signature")
+    if signature is None:
         abort(403)
 
     _, signature = signature.split("=")
