@@ -11,12 +11,13 @@ SECRET_KEY = "fvGL5puCNg7Lud4X"
 
 
 def verify_secret(request):
-    signature = request.headers.get("X-Hub-Signature")
+    signature = request.headers.get("X-Hub-Signature-256")
     if signature is None:
         abort(403)
-
+    print(signature)
     _, signature = signature.split("=")
-    mac = hmac.new(SECRET_KEY.encode(), msg=request.data, digestmod=hashlib.sha1)
+    mac = hmac.new(SECRET_KEY.encode(), msg=request.data, digestmod=hashlib.sha256)
+
     if not hmac.compare_digest(mac.hexdigest(), signature):
         abort(403)
 
