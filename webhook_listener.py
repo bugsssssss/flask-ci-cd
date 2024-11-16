@@ -37,8 +37,8 @@ def verify_secret(request):
         abort(403)
 
 
-@app.route("/webhook", methods=["POST"])
-def webhook_event():
+@app.route("/backend", methods=["POST"])
+def backend_event():
     verify_secret(request)
     if request.method == "POST":
         subprocess.run(["git", "pull"], cwd="/home/allplay/internetbor-ru-backend")
@@ -48,7 +48,23 @@ def webhook_event():
             cwd="/home/allplay/internetbor-ru-backend",
         )
 
-        return "Webhook event received and processed", 200
+        return "Backend ci-cd event received and processed", 200
+    else:
+        return "Invalid request method", 405
+
+
+@app.route("/frontend", methods=["POST"])
+def frontend_event():
+    verify_secret(request)
+    if request.method == "POST":
+        subprocess.run(["git", "pull"], cwd="/home/allplay/internetbor-ru-frontend")
+
+        subprocess.run(
+            ["sudo", "yarn", "build", "&&", "sudo", "yarn", "generate"],
+            cwd="/home/allplay/internetbor-ru-frontend",
+        )
+
+        return "Frontend ci-cd event received and processed", 200
     else:
         return "Invalid request method", 405
 
