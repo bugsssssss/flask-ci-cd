@@ -11,7 +11,7 @@ def webhook_event():
         subprocess.run(["git", "pull"], cwd="/home/allplay/internetbor-ru-backend")
 
         subprocess.run(
-            ["sudo", "docker-compose", "up", "-d"],
+            ["sudo", "docker", "compose", "up", "-d"],
             cwd="/home/allplay/internetbor-ru-backend",
         )
 
