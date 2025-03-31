@@ -41,9 +41,6 @@ def verify_secret(request):
 def backend_event():
     verify_secret(request)
     if request.method == "POST":
-        # ? pull changes
-        subprocess.run(["git", "pull"], cwd="/root/the-menu-backend")
-
         # ? run container
         subprocess.run(
             ["sudo", "docker-compose", "exec", "-T", "the-menu-backend_server_1", "git", "pull"],
