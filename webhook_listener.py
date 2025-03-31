@@ -43,17 +43,17 @@ def backend_event():
     if request.method == "POST":
         # ? run container
         subprocess.run(
-            ["sudo", "docker-compose", "exec", "-T", "the-menu-backend_server_1", "git", "pull"],
+            ["docker-compose", "exec", "-T", "the-menu-backend_server_1", "git", "pull"],
             cwd="/root/the-menu-backend",
         )
         # ? makemigrations 
         subprocess.run(
-            ["sudo", "docker-compose", "exec", "-T", "the-menu-backend_server_1", "python3", "manage.py", "makemigrations"],
+            ["docker-compose", "exec", "-T", "the-menu-backend_server_1", "python3", "manage.py", "makemigrations"],
             cwd="/root/the-menu-backend",
         )
         # ? migrate
         subprocess.run(
-            ["sudo", "docker-compose", "exec", "-T", "the-menu-backend_server_1", "python3", "manage.py", "migrate"],
+            ["docker-compose", "exec", "-T", "the-menu-backend_server_1", "python3", "manage.py", "migrate"],
             cwd="/root/the-menu-backend",
         )
 
