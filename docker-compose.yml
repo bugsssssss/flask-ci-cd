@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  webhook:
+    container_name: webhook-listener
+    build: .
+    ports:
+      - "9999:9999"
+    volumes:
+      - .:/backend
+    environment:
+      - SECRET_KEY=fvGL5puCNg7Lud4X
+    restart: always

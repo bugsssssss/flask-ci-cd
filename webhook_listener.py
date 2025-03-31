@@ -41,11 +41,23 @@ def verify_secret(request):
 def backend_event():
     verify_secret(request)
     if request.method == "POST":
-        subprocess.run(["git", "pull"], cwd="/home/allplay/internetbor-ru-backend")
+        # ? pull changes
+        subprocess.run(["git", "pull"], cwd="/root/the-menu-backend")
 
+        # ? run container
         subprocess.run(
-            ["sudo", "docker", "compose", "up", "-d"],
-            cwd="/home/allplay/internetbor-ru-backend",
+            ["sudo", "docker-compose", "up", "-d"],
+            cwd="/root/the-menu-backend",
+        )
+        # ? makemigrations 
+        subprocess.run(
+            ["sudo", "docker-compose", "exec", "-T", "the-menu-backend_server_1", "python3", "manage.py", "makemigrations"],
+            cwd="/root/the-menu-backend",
+        )
+        # ? migrate
+        subprocess.run(
+            ["sudo", "docker-compose", "exec", "-T", "the-menu-backend_server_1", "python3", "manage.py", "migrate"],
+            cwd="/root/the-menu-backend",
         )
 
         return "Backend ci-cd event received and processed", 200
@@ -57,11 +69,11 @@ def backend_event():
 def frontend_event():
     verify_secret(request)
     if request.method == "POST":
-        subprocess.run(["git", "pull"], cwd="/home/allplay/internetbor-ru-frontend")
+        subprocess.run(["git", "pull"], cwd="/root/the-menu-backend")
 
         subprocess.run(
             ["sudo", "yarn", "build", "&&", "sudo", "yarn", "generate"],
-            cwd="/home/allplay/internetbor-ru-frontend",
+            cwd="/root/the-menu-backend",
         )
 
         return "Frontend ci-cd event received and processed", 200
