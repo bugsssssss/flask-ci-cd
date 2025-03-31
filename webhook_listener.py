@@ -46,7 +46,7 @@ def backend_event():
 
         # ? run container
         subprocess.run(
-            ["sudo", "docker-compose", "up", "-d"],
+            ["sudo", "docker-compose", "exec", "-T", "the-menu-backend_server_1", "git", "pull"],
             cwd="/root/the-menu-backend",
         )
         # ? makemigrations 
