@@ -8,6 +8,7 @@ services:
       - "9999:9999"
     volumes:
       - .:/app
+      - /root/the-menu-backend:/root/the-menu-backend
     environment:
       - SECRET_KEY=fvGL5puCNg7Lud4X
     restart: always
