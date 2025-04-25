@@ -8,6 +8,11 @@ WORKDIR /app
 COPY . .
 
 # Install dependencies
+RUN apt-get update && apt-get install -y docker.io
+RUN apt-get update && apt-get install -y curl
+RUN curl -L "https://github.com/docker/compose/releases/download/v2.24.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+RUN chmod +x /usr/local/bin/docker-compose
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Expose Flask port
