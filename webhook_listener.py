@@ -5,6 +5,8 @@ import os
 import subprocess
 import threading
 from bot import notify_telegram 
+import json 
+
 
 app = Flask(__name__)
 print(app.name)
@@ -42,47 +44,59 @@ def verify_secret(request):
 @app.route("/backend", methods=["POST"])
 def backend_event():
     verify_secret(request)
-    if request.method == "POST":
 
-        def run_deploy():
-            # ? pull changes container
-            notify_telegram("🚀 *CI/CD triggered for BACKEND*")
-            subprocess.run(
-                ["git", "pull", "origin", "master"],
-                cwd="/projects/the-menu-backend",
-            )
-            notify_telegram("✅ *Git pull successful*")
-
-            # ? run 
-            print("RUNNING CONTAINER")
-            subprocess.run(
-                ["docker-compose", "up", "-d", '--build'],
-                cwd="/projects/the-menu-backend",
-            )
-            notify_telegram("🐳 *Docker containers restarted*")
-
-            # ? makemigrations 
-            print("RUNNING MAKEMIGRATIONS COMMAND")
-            subprocess.run(
-                ["docker", "exec", "the-menu-backend-server-1", "python3", "manage.py", "makemigrations"],
-                cwd="/projects/the-menu-backend",
-            )
-            # ? migrate
-            print("RUNNING MIGRATE COMMAND")
-            subprocess.run(
-                ["docker", "exec", "the-menu-backend-server-1", "python3", "manage.py", "migrate"],
-                cwd="/projects/the-menu-backend",
-            )
-            notify_telegram("🎉 *Migrations applied successfully*")
-            notify_telegram("✅ *CI/CD for BACKEND completed successfully*")
-
+    try:
+        data = request.data
+        payload = json.loads(data)
+        head_commit = payload.get("head_commit", {})
+        commit_message = head_commit.get("message")
+        commit_author = head_commit.get("author", {}).get("username")
+        commit_url = head_commit.get("url")
+        commit_timestamp = head_commit.get("timestamp")
+    except Exception as e:
+        notify_telegram(f"Failed to get commit data: {e}")
+        data = None
+        payload = None
+        commit_message = None
+        commit_author = None
+        commit_url = None
+        commit_timestamp = None
         
-        threading.Thread(target=run_deploy).start()
+    notify_telegram(f"Received data from github: {data}")
 
-        return "Backend ci-cd event received and processed", 200
-    else:
-        notify_telegram(f"❌ *CI/CD failed*: `{e}`")
-        return "Invalid request method", 405
+    def run_deploy():
+        message_parts = ["🚀 *CI/CD triggered for BACKEND*"]
+
+        if commit_message:
+            message_parts.append(f"📝 *Commit message:* `{commit_message}`")
+        if commit_author:
+            message_parts.append(f"👤 *Author:* `{commit_author}`")
+        if commit_timestamp:
+            message_parts.append(f"🕒 *Timestamp:* `{commit_timestamp}`")
+        if commit_url:
+            message_parts.append(f"🔗 [View Commit]({commit_url})")
+
+        final_message = "\n\n".join(message_parts)
+        notify_telegram(final_message)
+
+        subprocess.run(["git", "pull", "origin", "master"], cwd="/projects/the-menu-backend")
+        notify_telegram("✅ *Git pull successful*")
+
+        print("RUNNING CONTAINER")
+        subprocess.run(["docker-compose", "up", "-d", "--build"], cwd="/projects/the-menu-backend")
+        notify_telegram("🐳 *Docker containers restarted*")
+
+        print("RUNNING MAKEMIGRATIONS COMMAND")
+        subprocess.run(["docker", "exec", "the-menu-backend-server-1", "python3", "manage.py", "makemigrations"], cwd="/projects/the-menu-backend")
+
+        print("RUNNING MIGRATE COMMAND")
+        subprocess.run(["docker", "exec", "the-menu-backend-server-1", "python3", "manage.py", "migrate"], cwd="/projects/the-menu-backend")
+
+        notify_telegram("🎉 *Migrations applied successfully*")
+        notify_telegram("✅ *CI/CD for BACKEND completed successfully*")
+
+    threading.Thread(target=run_deploy).start()
+    return "Backend ci-cd event received and processed", 200
 
 
 @app.route("/frontend", methods=["POST"])
