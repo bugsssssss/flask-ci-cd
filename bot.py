@@ -1,8 +1,8 @@
 import requests
 import os 
 
-TELEGRAM_BOT_TOKEN = '7926725815:AAHxhuSTw8d0PAmCIqeZ5hezJ7dqyvvdvtY'
-TELEGRAM_CHAT_ID = '-1002566184679' 
+TELEGRAM_BOT_TOKEN = ''
+TELEGRAM_CHAT_ID = '' 
 
 def notify_telegram(message):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
